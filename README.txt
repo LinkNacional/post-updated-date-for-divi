@@ -11,11 +11,14 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Shows the post updated or modified date for divi blog posts. Will show only those posts are modified or updated.
 
 == Description ==
-The Post Updated Date for Divi is a simple plugin, that displays the date of the latest post update or modification, instead of the publication date.
+
+The [Post Updated Date for Divi](https://www.linknacional.com/wordpress/plugins/) is a simple plugin, that displays the date of the latest post update or modification, instead of the publication date.
+
 
 **Dependencies**
 
 No dependencies.
+
 
 **User instructions**
 
@@ -38,6 +41,7 @@ No dependencies.
 
 The Post Updated Date for Divi plugin is now live and working.
 
+
 == Frequently Asked Questions ==
 
 = What is the plugin license? =
@@ -48,9 +52,11 @@ The Post Updated Date for Divi plugin is now live and working.
 
 * Nothing
 
+
 == Screenshots ==
 
 1. 
+
 
 == Changelog ==
 
