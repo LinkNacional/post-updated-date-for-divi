@@ -23,58 +23,23 @@
  *
  * @author     Link Nacional
  */
-if ( ! class_exists('Post_Updated_Date_For_Divi') ) {
-    final class Post_Updated_Date_For_Divi {
-        /**
-         * The loader that's responsible for maintaining and registering all hooks that power
-         * the plugin.
-         *
-         * @since    1.0.0
-         *
-         * @var Post_Updated_Date_For_Divi_Loader maintains and registers all hooks for the plugin
-         */
+if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
+    final class Lkn_Post_Updated_Date_For_Divi {
         private $loader;
-
-        /**
-         * The unique identifier of this plugin.
-         *
-         * @since    1.0.0
-         *
-         * @var string the string used to uniquely identify this plugin
-         */
         private $plugin_name;
-
-        /**
-         * The current version of the plugin.
-         *
-         * @since    1.0.0
-         *
-         * @var string the current version of the plugin
-         */
         private $version;
         private static $instance = false;
 
-        /**
-         * Define the core functionality of the plugin.
-         *
-         * Set the plugin name and the plugin version that can be used throughout the plugin.
-         * Load the dependencies, define the locale, and set the hooks for the admin area and
-         * the public-facing side of the site.
-         *
-         * @since    1.0.0
-         */
         public function __construct() {
-            if ( defined( 'LKN_DPMD_VERSION' ) ) {
-                $this->version = LKN_DPMD_VERSION;
+            if ( defined( 'LKN_PUDD_VERSION' ) ) {
+                $this->version = LKN_PUDD_VERSION;
             } else {
-                $this->version = '1.0.2';
+                $this->version = '1.0.0';
             }
             $this->plugin_name = 'post-updated-date-for-divi';
 
             $this->load_dependencies();
             $this->set_locale();
-            $this->define_admin_hooks();
-            $this->define_public_hooks();
 
             add_action('init', array($this, 'lkn_dpmd_init'));
         }
@@ -92,11 +57,8 @@ if ( ! class_exists('Post_Updated_Date_For_Divi') ) {
         }
 
         public function lkn_dpmd_init(): void {
-            // add_filter( 'register_post_type_args', array($this, 'wpse247328_register_post_type_args'));
-            // add_action( 'init', array($this, 'acelerar_blog_link'));
-
             add_action( 'get_the_date', array($this, 'et_last_modified_date_blog'));
-            add_action( 'get_the_time', array($this, 'et_last_modified_date_blog'));
+            add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'));
         }
 
         public function et_last_modified_date_blog() {
@@ -107,36 +69,8 @@ if ( ! class_exists('Post_Updated_Date_For_Divi') ) {
 
                 $last_modified = __( 'Updated', 'post-updated-date-for-divi' ) . ' ' . $the_modified2;
 
-                return $the_modified !== $the_time ? $last_modified : get_post_time( 'M j, Y' );
+                return $the_modified !== $the_time ? $last_modified : get_post_time( 'd/m/y, H:i', false, null, true );
             }
-        }
-
-        public function acelerar_blog_link(): void {
-            remove_action('wp_head', 'print_emoji_detection_script', 7);
-            remove_action('wp_print_styles', 'print_emoji_styles');
-            remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
-            remove_action( 'admin_print_styles', 'print_emoji_styles' );
-
-            remove_action('wp_head', 'wp_shortlink_wp_head', 10, 0);
-
-            add_action( 'wp_footer', wp_dequeue_script( 'wp-embed' ));
-
-            remove_action( 'wp_head', 'wlwmanifest_link' );
-
-            add_action('wp_enqueue_scripts', 'deregister_qjuery');
-
-            if ( ! is_admin() ) {
-                add_action('wp_enqueue_scripts', wp_deregister_script('jquery'));
-            }
-
-            add_action( 'init', wp_deregister_script('heartbeat'), 1 );
-
-            // add_action( 'wp_print_styles',wp_deregister_style( 'dashicons' ), 100 );
-            wp_deregister_style( 'dashicons' );
-
-            /*if (!current_user_can( 'update_core' )) {
-                add_action( 'wp_enqueue_scripts', wp_deregister_style('dashicons'));
-            }*/
         }
 
         /**
@@ -165,7 +99,7 @@ if ( ! class_exists('Post_Updated_Date_For_Divi') ) {
          *
          * @since     1.0.0
          *
-         * @return Post_Updated_Date_For_Divi_Loader orchestrates the hooks of the plugin
+         * @return Lkn_Post_Updated_Date_For_Divi_Loader orchestrates the hooks of the plugin
          */
         public function get_loader() {
             return $this->loader;
@@ -187,10 +121,8 @@ if ( ! class_exists('Post_Updated_Date_For_Divi') ) {
          *
          * Include the following files that make up the plugin:
          *
-         * - Post_Updated_Date_For_Divi_Loader. Orchestrates the hooks of the plugin.
-         * - Post_Updated_Date_For_Divi_i18n. Defines internationalization functionality.
-         * - Post_Updated_Date_For_Divi_Admin. Defines all hooks for the admin area.
-         * - Post_Updated_Date_For_Divi_Public. Defines all hooks for the public side of the site.
+         * - Lkn_Post_Updated_Date_For_Divi_Loader. Orchestrates the hooks of the plugin.
+         * - Lkn_Post_Updated_Date_For_Divi_i18n. Defines internationalization functionality.
          *
          * Create an instance of the loader which will be used to register the hooks
          * with WordPress.
@@ -210,60 +142,23 @@ if ( ! class_exists('Post_Updated_Date_For_Divi') ) {
              */
             require_once plugin_dir_path( __DIR__ ) . 'includes/class-post-updated-date-for-divi-i18n.php';
 
-            /**
-             * The class responsible for defining all actions that occur in the admin area.
-             */
-            require_once plugin_dir_path( __DIR__ ) . 'admin/class-post-updated-date-for-divi-admin.php';
-
-            /**
-             * The class responsible for defining all actions that occur in the public-facing
-             * side of the site.
-             */
-            require_once plugin_dir_path( __DIR__ ) . 'public/class-post-updated-date-for-divi-public.php';
-
-            $this->loader = new Post_Updated_Date_For_Divi_Loader();
+            $this->loader = new Lkn_Post_Updated_Date_For_Divi_Loader();
         }
 
         /**
          * Define the locale for this plugin for internationalization.
          *
-         * Uses the Post_Updated_Date_For_Divi_i18n class in order to set the domain and to register the hook
+         * Uses the Lkn_Post_Updated_Date_For_Divi_i18n class in order to set the domain and to register the hook
          * with WordPress.
          *
          * @since    1.0.0
          */
         private function set_locale(): void {
-            $plugin_i18n = new Post_Updated_Date_For_Divi_i18n();
+            $plugin_i18n = new Lkn_Post_Updated_Date_For_Divi_i18n();
 
             $this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
         }
-
-        /**
-         * Register all of the hooks related to the admin area functionality
-         * of the plugin.
-         *
-         * @since    1.0.0
-         */
-        private function define_admin_hooks(): void {
-            $plugin_admin = new Post_Updated_Date_For_Divi_Admin( $this->get_plugin_name(), $this->get_version() );
-
-            $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-            $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-        }
-
-        /**
-         * Register all of the hooks related to the public-facing functionality
-         * of the plugin.
-         *
-         * @since    1.0.0
-         */
-        private function define_public_hooks(): void {
-            $plugin_public = new Post_Updated_Date_For_Divi_Public( $this->get_plugin_name(), $this->get_version() );
-
-            $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-            $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-        }
     }
 
-    Post_Updated_Date_For_Divi::get_instance();
+    Lkn_Post_Updated_Date_For_Divi::get_instance();
 }

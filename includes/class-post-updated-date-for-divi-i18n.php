@@ -20,7 +20,7 @@
  *
  * @author     Link Nacional
  */
-final class Post_Updated_Date_For_Divi_i18n {
+final class Lkn_Post_Updated_Date_For_Divi_i18n {
     /**
      * Load the plugin text domain for translation.
      *
