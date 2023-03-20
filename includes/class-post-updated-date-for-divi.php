@@ -59,17 +59,48 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
         public function lkn_dpmd_init(): void {
             add_action( 'get_the_date', array($this, 'et_last_modified_date_blog'));
             add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'));
+            add_filter('post_date_column_status', array($this, 'change_published_date_text'));
+            add_filter('post_date_column_time', array($this, 'change_published_time_text'));
         }
 
         public function et_last_modified_date_blog() {
-            if ( 'post' === get_post_type() ) {
-                $the_time = get_post_time( 'H:i:s' );
-                $the_modified = get_post_modified_time( 'H:i:s' );
-                $the_modified2 = get_post_modified_time( 'd/m/y, H:i', false, null, true);
+            $the_time = get_post_time( 'd/m/y H:i:s' );
+            $the_modified = get_post_modified_time( 'd/m/y H:i:s' );
 
-                $last_modified = __( 'Updated', 'post-updated-date-for-divi' ) . ' ' . $the_modified2;
+            if ('post' === get_post_type()) {
+                $the_published = get_post_time( 'd/m/y, H:i' );
+                $the_updated = get_post_modified_time( 'd/m/y, H:i' );
 
-                return $the_modified !== $the_time ? $last_modified : get_post_time( 'd/m/y, H:i', false, null, true );
+                return $the_modified !== $the_time ? $the_updated : $the_published;
+            }
+        }
+
+        public function change_published_time_text() {
+            $date_format = get_option('date_format');
+            $time_format = get_option('time_format');
+
+            $the_time = get_post_time( 'd/m/y H:i:s' );
+            $the_modified = get_post_modified_time( 'd/m/y H:i:s' );
+
+            if ('post' === get_post_type()) {
+                $text_time_updated = get_post_modified_time($date_format . ' ', false, null, true)
+                . __( 'at', 'post-updated-date-for-divi' ) . get_post_modified_time(' ' . $time_format, false, null, true);
+                $text_time_published = get_post_time($date_format . ' ', false, null, true)
+                . __( 'at', 'post-updated-date-for-divi' ) . get_post_time(' ' . $time_format, false, null, true);
+
+                return $the_modified !== $the_time ? $text_time_updated : $text_time_published;
+            }
+        }
+
+        public function change_published_date_text() {
+            if ('post' === get_post_type()) {
+                $the_time = get_post_time( 'd/m/y H:i:s' );
+                $the_modified = get_post_modified_time( 'd/m/y H:i:s' );
+
+                $text_updated = __( 'Updated:', 'post-updated-date-for-divi' );
+                $text_published = __( 'Published:', 'post-updated-date-for-divi' );
+
+                return $the_time !== $the_modified ? $text_updated : $text_published;
             }
         }
 

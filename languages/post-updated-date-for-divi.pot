@@ -2,5 +2,11 @@
 msgid "Shows the post updated or modified date for divi blog posts. Will show only those posts are modified or updated."
 msgstr ""
 
-msgid "Updated"
+msgid "Updated:"
+msgstr ""
+
+msgid "Published:"
+msgstr ""
+
+msgid "at"
 msgstr ""
