@@ -41,11 +41,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
             $this->load_dependencies();
             $this->set_locale();
 
-            add_action('init', array($this, 'lkn_dpmd_init'));
-        }
-
-        public function lkn_dpmd_register_settings(): void {
-            register_setting('lkn_dpmd_settings', 'lkn_dpmd_text');
+            add_action('init', array($this, 'init'));
         }
 
         public static function get_instance() {
@@ -56,7 +52,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
             return self::$instance;
         }
 
-        public function lkn_dpmd_init(): void {
+        public function init(): void {
             add_action( 'get_the_date', array($this, 'et_last_modified_date_blog'));
             add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'));
             add_filter('post_date_column_status', array($this, 'change_published_date_text'));
