@@ -6,8 +6,8 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @see       https://www.linknacional.com/
- * @since      1.0.0
+ * @see         https://www.linknacional.com/
+ * @since       1.0.0
  */
 
 /*
@@ -34,7 +34,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
             if ( defined( 'LKN_PUDD_VERSION' ) ) {
                 $this->version = LKN_PUDD_VERSION;
             } else {
-                $this->version = '1.0.0';
+                $this->version = '1.0.1';
             }
             $this->plugin_name = 'post-updated-date-for-divi';
 
@@ -52,46 +52,78 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
             return self::$instance;
         }
 
+        /**
+         * Call the functions for change the data and time text, and the filter to do this.
+         *
+         * @see         https://www.linknacional.com/
+         * @since       1.0.0
+         * @version     1.0.1
+         */
         public function init(): void {
-            add_action( 'get_the_date', array($this, 'et_last_modified_date_blog'));
-            add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'));
             add_filter('post_date_column_status', array($this, 'change_published_date_text'));
             add_filter('post_date_column_time', array($this, 'change_published_time_text'));
         }
 
-        public function et_last_modified_date_blog() {
-            $the_time = get_post_time( 'd/m/y H:i:s' );
-            $the_modified = get_post_modified_time( 'd/m/y H:i:s' );
-
-            if ('post' === get_post_type()) {
-                $the_published = get_post_time( 'd/m/y, H:i' );
-                $the_updated = get_post_modified_time( 'd/m/y, H:i' );
-
-                return $the_modified !== $the_time ? $the_updated : $the_published;
-            }
-        }
-
+        /**
+         * Verify the published time and the update time of an post, and update the text show to user.
+         *
+         * @see         https://www.linknacional.com/
+         * @since       1.0.0
+         * @version     1.0.1
+         * 
+         * @return string text to updated post time text
+         * 
+         */
         public function change_published_time_text() {
+            // Get date format.
             $date_format = get_option('date_format');
+            
+            // If date format is empty, set a default value.
+            if ('' === $date_format) {
+                $date_format = 'd/m/Y';
+            }
+
+            // Get time format.
             $time_format = get_option('time_format');
+            
+            // If time format is empty, set a default value.
+            if ('' === $time_format) {
+                $time_format = 'H:i:s';
+            }
 
-            $the_time = get_post_time( 'd/m/y H:i:s' );
-            $the_modified = get_post_modified_time( 'd/m/y H:i:s' );
-
+            // Verify post type, and define the new text show to user.
             if ('post' === get_post_type()) {
-                $text_time_updated = get_post_modified_time($date_format . ' ', false, null, true)
-                . __( 'at', 'post-updated-date-for-divi' ) . get_post_modified_time(' ' . $time_format, false, null, true);
-                $text_time_published = get_post_time($date_format . ' ', false, null, true)
-                . __( 'at', 'post-updated-date-for-divi' ) . get_post_time(' ' . $time_format, false, null, true);
+                $the_time = get_post_time( 'd/m/y H:i:s', false, null, false );
+                $the_modified = get_post_modified_time( 'd/m/y H:i:s', false, null, false );
+
+                // TODO as vilãs são essas funçõezinhas aqui.
+                $time = get_the_time( 'U' );
+                $teste = gmdate( 'Y-m-d', $time);
+
+                $text_time_updated = get_post_modified_time($date_format, false, null, true) . ' '
+                . __( 'at', 'post-updated-date-for-divi' ) . ' ' . get_post_modified_time($time_format, false, null, true);
+                $text_time_published = get_post_time($date_format, false, null, true) . ' '
+                . __( 'at', 'post-updated-date-for-divi' ) . ' ' . get_post_time($time_format, false, null, true);
 
                 return $the_modified !== $the_time ? $text_time_updated : $text_time_published;
             }
         }
 
+        /**
+         * Verify the published time and the update time of an post, and update the status text show to user.
+         *
+         * @see         https://www.linknacional.com/
+         * @since       1.0.0
+         * @version     1.0.1
+         * 
+         * @return string text to updated status text
+         * 
+         */
         public function change_published_date_text() {
+            // Verify post type, and define the new status text show to user.
             if ('post' === get_post_type()) {
-                $the_time = get_post_time( 'd/m/y H:i:s' );
-                $the_modified = get_post_modified_time( 'd/m/y H:i:s' );
+                $the_time = get_post_time( 'd/m/y H:i:s', false, null, false );
+                $the_modified = get_post_modified_time( 'd/m/y H:i:s', false, null, false );
 
                 $text_updated = __( 'Updated:', 'post-updated-date-for-divi' );
                 $text_published = __( 'Published:', 'post-updated-date-for-divi' );

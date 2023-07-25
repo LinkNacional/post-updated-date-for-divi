@@ -8,18 +8,19 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @see              https://www.linknacional.com/
- * @since            1.0.0
+ * @see               https://www.linknacional.com/
+ * @since             1.0.0
+ * @version           1.0.0
  *
  * @wordpress-plugin
  * Plugin Name:       Post Updated Date for Divi
  * Plugin URI:        https://www.linknacional.com/wordpress/plugins/
  * Description:       Shows the post updated or modified date for divi blog posts. Will show only those posts are modified or updated.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Link Nacional
  * Author URI:        https://www.linknacional.com/
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * License:           GPL-3.0+
+ * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       post-updated-date-for-divi
  * Domain Path:       /languages
  */
@@ -34,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('LKN_PUDD_VERSION', '1.0.0');
+define('LKN_PUDD_VERSION', '1.0.1');
 define('LKN_PUDD_OPTIONS_VERSION', '1');
 define('LKN_PUDD_SUPPORT_FORUM', 'https://www.linknacional.com.br/suporte');
 define('LKN_PUDD_WP_VERSION', '4.0');
