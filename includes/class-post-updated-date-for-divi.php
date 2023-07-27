@@ -60,8 +60,41 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * @version     1.0.1
          */
         public function init(): void {
-            add_filter('post_date_column_status', array($this, 'change_published_date_text'));
-            add_filter('post_date_column_time', array($this, 'change_published_time_text'));
+            add_filter( 'get_the_date', array($this, 'et_last_modified_date_blog'));
+            add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'));
+            add_filter('post_date_column_status', array($this, 'change_post_status_text'));
+            add_filter('post_date_column_time', array($this, 'change_post_time_text'));
+        }
+
+        /**
+         * When get_the_time or get_the_date is used, this function verify if it has updated or only published
+         * and return the correct time.
+         *
+         * @see         https://www.linknacional.com/
+         * @since       1.0.0
+         * @version     1.0.1
+         * 
+         * @return int time
+         * 
+         */
+        // TODO bug está aqui, arrumar.
+        public function et_last_modified_date_blog($param) {
+            if ('post' === get_post_type()) {
+                if (strlen($param) >= 8) {
+                    $format = get_option('date_format');
+
+                    // echo $param;
+                    return $param;
+                } else {
+                    $the_time = get_post_time( 'Y-m-d H:i:s' );
+                    $the_modified = get_post_modified_time( 'Y-m-d H:i:s' );
+
+                    $the_published = new DateTime($the_time);
+                    $the_updated = new DateTime($the_modified);
+
+                    return $the_time !== $the_modified ? $param : $param;
+                }
+            }
         }
 
         /**
@@ -74,7 +107,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * @return string text to updated post time text
          * 
          */
-        public function change_published_time_text() {
+        public function change_post_time_text() {
             // Get date format.
             $date_format = get_option('date_format');
             
@@ -91,17 +124,15 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 $time_format = 'H:i:s';
             }
 
-            // Verify post type, and define the new text show to user.
+            // Verify post type, and define the new time text show to user.
             if ('post' === get_post_type()) {
-                $the_time = get_post_time( 'd/m/y H:i:s', false, null, false );
-                $the_modified = get_post_modified_time( 'd/m/y H:i:s', false, null, false );
+                $the_time = get_post_time( 'Y-m-d H:i:s', false, null, false );
+                $the_modified = get_post_modified_time( 'Y-m-d H:i:s', false, null, false );
 
-                // TODO as vilãs são essas funçõezinhas aqui.
-                $time = get_the_time( 'U' );
-                $teste = gmdate( 'Y-m-d', $time);
-
+                // Set the new time text.
                 $text_time_updated = get_post_modified_time($date_format, false, null, true) . ' '
                 . __( 'at', 'post-updated-date-for-divi' ) . ' ' . get_post_modified_time($time_format, false, null, true);
+
                 $text_time_published = get_post_time($date_format, false, null, true) . ' '
                 . __( 'at', 'post-updated-date-for-divi' ) . ' ' . get_post_time($time_format, false, null, true);
 
@@ -119,13 +150,15 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * @return string text to updated status text
          * 
          */
-        public function change_published_date_text() {
+        public function change_post_status_text() {
             // Verify post type, and define the new status text show to user.
             if ('post' === get_post_type()) {
-                $the_time = get_post_time( 'd/m/y H:i:s', false, null, false );
-                $the_modified = get_post_modified_time( 'd/m/y H:i:s', false, null, false );
+                $the_time = get_post_time( 'Y-m-d H:i:s', false, null, false );
+                $the_modified = get_post_modified_time( 'Y-m-d H:i:s', false, null, false );
 
+                // Set the new status text.
                 $text_updated = __( 'Updated:', 'post-updated-date-for-divi' );
+
                 $text_published = __( 'Published:', 'post-updated-date-for-divi' );
 
                 return $the_time !== $the_modified ? $text_updated : $text_published;
