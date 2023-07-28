@@ -63,6 +63,7 @@ The Post Updated Date for Divi plugin is now live and working.
 = 1.0.1 =
 **28/07/2023**
 * Bug correction.
+* Plugin now handles scheduled posts.
 
 = 1.0.0 =
 * Plugin launch.
