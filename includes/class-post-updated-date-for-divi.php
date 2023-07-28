@@ -25,11 +25,46 @@
  */
 if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
     final class Lkn_Post_Updated_Date_For_Divi {
+        /**
+         * The loader that's responsible for maintaining and registering all hooks that power
+         * the plugin.
+         *
+         * @since    1.0.0
+         *
+         * @var Lkn_Payment_Banking_Slip_Pix_For_Lifterlms_Loader maintains and registers all hooks for the plugin
+         */
         private $loader;
+
+        /**
+         * The unique identifier of this plugin.
+         *
+         * @since    1.0.0
+         *
+         * @var string the string used to uniquely identify this plugin
+         */
         private $plugin_name;
+
+        /**
+         * The current version of the plugin.
+         *
+         * @since    1.0.0
+         *
+         * @var string the current version of the plugin
+         */
         private $version;
+
+        // For singleton pattern.
         private static $instance = false;
 
+        /**
+         * Define the core functionality of the plugin.
+         *
+         * Set the plugin name and the plugin version that can be used throughout the plugin.
+         * Load the dependencies, define the locale, and set the hooks for the admin area and
+         * the public-facing side of the site.
+         *
+         * @since    1.0.0
+         */
         public function __construct() {
             if ( defined( 'LKN_PUDD_VERSION' ) ) {
                 $this->version = LKN_PUDD_VERSION;
@@ -60,7 +95,6 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * @version     1.0.1
          */
         public function init(): void {
-            add_filter( 'get_the_date', array($this, 'et_last_modified_date_blog'));
             add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'));
             add_filter('post_date_column_status', array($this, 'change_post_status_text'));
             add_filter('post_date_column_time', array($this, 'change_post_time_text'));
@@ -74,25 +108,37 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * @since       1.0.0
          * @version     1.0.1
          * 
-         * @return int time
+         * @return int date
          * 
          */
-        // TODO bug está aqui, arrumar.
         public function et_last_modified_date_blog($param) {
+            // Verify post type.
             if ('post' === get_post_type()) {
-                if (strlen($param) >= 8) {
-                    $format = get_option('date_format');
+                // Get time format.
+                $time_format = get_option('time_format');
+            
+                // If time format is empty, set a default value.
+                if (empty($time_format)) {
+                    $time_format = 'H:i';
+                }
 
-                    // echo $param;
-                    return $param;
-                } else {
+                // Verification of parameter in the get_the_time() call, less than Unix timestamp:
+                if (strlen($param) < 10) {
                     $the_time = get_post_time( 'Y-m-d H:i:s' );
                     $the_modified = get_post_modified_time( 'Y-m-d H:i:s' );
 
+                    // Date instances to suit the time format.
                     $the_published = new DateTime($the_time);
                     $the_updated = new DateTime($the_modified);
 
-                    return $the_time !== $the_modified ? $param : $param;
+                    return $the_modified <= $the_time ? $the_published->format($time_format) : $the_updated->format($time_format);
+                    // Bigger than Unix timestamp:
+                } else {
+                    // Time convert to Unix timestamp for get_the_time('U').
+                    $the_time = get_post_time( 'U' );
+                    $the_modified = get_post_modified_time( 'U' );
+
+                    return $the_modified <= $the_time ? $the_time : $the_modified;
                 }
             }
         }
@@ -108,24 +154,27 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * 
          */
         public function change_post_time_text() {
-            // Get date format.
-            $date_format = get_option('date_format');
-            
-            // If date format is empty, set a default value.
-            if ('' === $date_format) {
-                $date_format = 'd/m/Y';
-            }
-
-            // Get time format.
-            $time_format = get_option('time_format');
-            
-            // If time format is empty, set a default value.
-            if ('' === $time_format) {
-                $time_format = 'H:i:s';
-            }
-
             // Verify post type, and define the new time text show to user.
             if ('post' === get_post_type()) {
+                $post = get_post();
+
+                // Get date format.
+                $date_format = get_option('date_format');
+            
+                // If date format is empty, set a default value.
+                if (empty($date_format)) {
+                    $date_format = 'd/m/Y';
+                }
+
+                // Get time format.
+                $time_format = get_option('time_format');
+            
+                // If time format is empty, set a default value.
+                if (empty($time_format)) {
+                    $time_format = 'H:i';
+                }
+
+                // Post times to compare.
                 $the_time = get_post_time( 'Y-m-d H:i:s', false, null, false );
                 $the_modified = get_post_modified_time( 'Y-m-d H:i:s', false, null, false );
 
@@ -136,7 +185,12 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 $text_time_published = get_post_time($date_format, false, null, true) . ' '
                 . __( 'at', 'post-updated-date-for-divi' ) . ' ' . get_post_time($time_format, false, null, true);
 
-                return $the_modified !== $the_time ? $text_time_updated : $text_time_published;
+                // To keep the scheduled date/time shown.
+                if ('future' === $post->post_status) {
+                    return $text_time_published;
+                } else {
+                    return $the_modified <= $the_time ? $text_time_published : $text_time_updated;
+                }
             }
         }
 
@@ -153,15 +207,25 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
         public function change_post_status_text() {
             // Verify post type, and define the new status text show to user.
             if ('post' === get_post_type()) {
+                $post = get_post();
+
+                // Post times to compare.
                 $the_time = get_post_time( 'Y-m-d H:i:s', false, null, false );
                 $the_modified = get_post_modified_time( 'Y-m-d H:i:s', false, null, false );
 
-                // Set the new status text.
+                // Set the new status texts.
                 $text_updated = __( 'Updated:', 'post-updated-date-for-divi' );
 
                 $text_published = __( 'Published:', 'post-updated-date-for-divi' );
 
-                return $the_time !== $the_modified ? $text_updated : $text_published;
+                $text_scheduled = __( 'Scheduled:', 'post-updated-date-for-divi' );
+
+                // To keep the scheduled status text shown.
+                if ('future' === $post->post_status) {
+                    return $text_scheduled;
+                } else {
+                    return $the_modified <= $the_time ? $text_published : $text_updated;
+                }
             }
         }
 

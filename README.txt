@@ -61,7 +61,7 @@ The Post Updated Date for Divi plugin is now live and working.
 == Changelog ==
 
 = 1.0.1 =
-**25/07/2023**
+**28/07/2023**
 * Bug correction.
 
 = 1.0.0 =
