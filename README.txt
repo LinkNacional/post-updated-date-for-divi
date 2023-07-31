@@ -4,10 +4,10 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: posts, updated, post, modified, date, divi
 Requires at least: 5.5
 Tested up to: 6.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.2
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License: GPLv3 or later
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 Shows the post updated or modified date for divi blog posts. Will show only those posts are modified or updated.
 
@@ -59,6 +59,11 @@ The Post Updated Date for Divi plugin is now live and working.
 1. Nothing;
 
 == Changelog ==
+
+= 1.0.1 =
+**28/07/2023**
+* Bug correction.
+* Plugin now handles scheduled posts.
 
 = 1.0.0 =
 * Plugin launch.
