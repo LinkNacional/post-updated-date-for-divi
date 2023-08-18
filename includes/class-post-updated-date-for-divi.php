@@ -116,12 +116,28 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
             if ('post' === get_post_type()) {
                 // Get time format.
                 $time_format = get_option('time_format');
+                $date_format = get_option('date_format');
+                $divi_dformat = get_option('divi_date_format');
             
                 // If time format is empty, set a default value.
                 if (empty($time_format)) {
                     $time_format = 'H:i';
                 }
 
+                // If date format is empty, set a default value.
+                if (empty($date_format)) {
+                    $date_format = 'd/m/Y';
+                }
+
+                // // If divi date format is empty, set a default value.
+                // if (empty($divi_dformat)) {
+                //     $divi_dformat = $date_format;
+                // }
+
+                // TODO o bug está consistindo no fato de que o Divi usa a função get_the_time para formar a data do post, e
+                // com isso, ao passar um parametro maior que 10, está pegando o valor Unix. 
+                // TODO ver uma forma melhor de verificar os parametros na estrutura condicional abaixo.
+                
                 // Verification of parameter in the get_the_time() call, less than Unix timestamp:
                 if (strlen($param) < 10) {
                     $the_time = get_post_time( 'Y-m-d H:i:s' );
@@ -132,8 +148,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                     $the_updated = new DateTime($the_modified);
 
                     return $the_modified <= $the_time ? $the_published->format($time_format) : $the_updated->format($time_format);
-                    // Bigger than Unix timestamp:
-                } else {
+                } if (strlen($param) >= 10) {// Bigger than Unix timestamp:
                     // Time convert to Unix timestamp for get_the_time('U').
                     $the_time = get_post_time( 'U' );
                     $the_modified = get_post_modified_time( 'U' );
