@@ -69,7 +69,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
             if ( defined( 'LKN_PUDD_VERSION' ) ) {
                 $this->version = LKN_PUDD_VERSION;
             } else {
-                $this->version = '1.0.1';
+                $this->version = '1.0.2';
             }
             $this->plugin_name = 'post-updated-date-for-divi';
 
@@ -92,7 +92,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          *
          * @see         https://www.linknacional.com/
          * @since       1.0.0
-         * @version     1.0.1
+         * @version     1.0.2
          */
         public function init(): void {
             add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'));
@@ -106,7 +106,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          *
          * @see         https://www.linknacional.com/
          * @since       1.0.0
-         * @version     1.0.1
+         * @version     1.0.2
          * 
          * @return int date
          * 
@@ -116,44 +116,61 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
             if ('post' === get_post_type()) {
                 // Get time format.
                 $time_format = get_option('time_format');
+
+                // Get date format.
                 $date_format = get_option('date_format');
-                $divi_dformat = get_option('divi_date_format');
-            
+
+                // If Divi loaded, get Divi date format.
+                if (function_exists('et_divi_post_meta')) {
+                    $divi_dformat = et_get_option( 'divi_date_format' );
+                }
+                
                 // If time format is empty, set a default value.
                 if (empty($time_format)) {
-                    $time_format = 'H:i';
+                    $time_format = update_option('time_format', 'H:i');
                 }
 
                 // If date format is empty, set a default value.
                 if (empty($date_format)) {
-                    $date_format = 'd/m/Y';
+                    $date_format = update_option('date_format', 'd/m/Y');
+                }
+                
+                // If divi date format is empty, set default value equal .
+                if (empty($divi_dformat)) {
+                    $divi_dformat = et_update_option( 'divi_date_format', $date_format); // TODO testar se funciona.
                 }
 
-                // // If divi date format is empty, set a default value.
-                // if (empty($divi_dformat)) {
-                //     $divi_dformat = $date_format;
-                // }
+                // Get Post time, and Post modified time.
+                $the_time = get_post_time( 'Y-m-d H:i', false, null, true );
+                $the_modified = get_post_modified_time( 'Y-m-d H:i', false, null, true );
 
-                // TODO o bug está consistindo no fato de que o Divi usa a função get_the_time para formar a data do post, e
-                // com isso, ao passar um parametro maior que 10, está pegando o valor Unix. 
-                // TODO ver uma forma melhor de verificar os parametros na estrutura condicional abaixo.
-                
-                // Verification of parameter in the get_the_time() call, less than Unix timestamp:
-                if (strlen($param) < 10) {
-                    $the_time = get_post_time( 'Y-m-d H:i:s' );
-                    $the_modified = get_post_modified_time( 'Y-m-d H:i:s' );
+                // Date instances to suit the format.
+                $the_published = new DateTime($the_time);
+                $the_updated = new DateTime($the_modified);
 
-                    // Date instances to suit the time format.
-                    $the_published = new DateTime($the_time);
-                    $the_updated = new DateTime($the_modified);
+                // For length comparations. Ex: $param = 21/08/2023, $date_format = d/m/Y, strlen will be different.
+                $ex_time = date($time_format);
+                $ex_date = date($date_format);
+                $ex_ddate = date($divi_dformat);
 
-                    return $the_modified <= $the_time ? $the_published->format($time_format) : $the_updated->format($time_format);
-                } if (strlen($param) >= 10) {// Bigger than Unix timestamp:
-                    // Time convert to Unix timestamp for get_the_time('U').
-                    $the_time = get_post_time( 'U' );
-                    $the_modified = get_post_modified_time( 'U' );
-
-                    return $the_modified <= $the_time ? $the_time : $the_modified;
+                if ( ! empty($param)) {
+                    if (strlen($param) === 10 && preg_match('/^\d+$/', $param) ) {// Only numbers in $param, $param = Unix
+                        // Time convert to Unix timestamp for get_the_time('U').
+                        $the_time = get_post_time( 'U' );
+                        $the_modified = get_post_modified_time( 'U' );
+                    
+                        return $the_modified <= $the_time ? $the_time : $the_modified;
+                    }
+                    if (strpos($param, ':') !== false || strlen($param) === strlen($ex_time)) { // Verification of parameter in the get_the_time() call, equals than time_format:
+                        return $the_modified <= $the_time ? date_i18n($time_format, $the_published->getTimestamp()) : date_i18n($time_format, $the_updated->getTimestamp());
+                    }
+                    if (strlen($param) >= strlen($ex_date) || strlen($param) >= strlen($ex_ddate)) { // Verification of parameter in the get_the_time() call, equals than date_format or divi_date_format:
+                        if (strlen($param) >= strlen($ex_ddate)) {
+                            return $the_modified <= $the_time ? date_i18n($divi_dformat, $the_published->getTimestamp()) : date_i18n($divi_dformat, $the_updated->getTimestamp());
+                        } else {
+                            return $the_modified <= $the_time ? date_i18n($date_format, $the_published->getTimestamp()) : date_i18n($date_format, $the_updated->getTimestamp());
+                        }
+                    }
                 }
             }
         }
@@ -163,7 +180,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          *
          * @see         https://www.linknacional.com/
          * @since       1.0.0
-         * @version     1.0.1
+         * @version     1.0.2
          * 
          * @return string text to updated post time text
          * 
@@ -190,8 +207,8 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 }
 
                 // Post times to compare.
-                $the_time = get_post_time( 'Y-m-d H:i:s', false, null, false );
-                $the_modified = get_post_modified_time( 'Y-m-d H:i:s', false, null, false );
+                $the_time = get_post_time( 'Y-m-d H:i', false, null, false );
+                $the_modified = get_post_modified_time( 'Y-m-d H:i', false, null, false );
 
                 // Set the new time text.
                 $text_time_updated = get_post_modified_time($date_format, false, null, true) . ' '
@@ -214,7 +231,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          *
          * @see         https://www.linknacional.com/
          * @since       1.0.0
-         * @version     1.0.1
+         * @version     1.0.2
          * 
          * @return string text to updated status text
          * 
@@ -225,8 +242,8 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 $post = get_post();
 
                 // Post times to compare.
-                $the_time = get_post_time( 'Y-m-d H:i:s', false, null, false );
-                $the_modified = get_post_modified_time( 'Y-m-d H:i:s', false, null, false );
+                $the_time = get_post_time( 'Y-m-d H:i', false, null, false );
+                $the_modified = get_post_modified_time( 'Y-m-d H:i', false, null, false );
 
                 // Set the new status texts.
                 $text_updated = __( 'Updated:', 'post-updated-date-for-divi' );
