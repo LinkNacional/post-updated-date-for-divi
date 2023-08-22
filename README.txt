@@ -3,8 +3,8 @@ Contributors: linknacional
 Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: posts, updated, post, modified, date, divi
 Requires at least: 5.5
-Tested up to: 6.1
-Stable tag: 1.0.1
+Tested up to: 6.3
+Stable tag: 1.0.2
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -59,6 +59,11 @@ The Post Updated Date for Divi plugin is now live and working.
 1. Nothing;
 
 == Changelog ==
+
+= 1.0.2 =
+**22/08/2023**
+* Bug correction.
+* Fixed bug in custom posts headers built with Divi, where the date was shown as Unix Timestamp.
 
 = 1.0.1 =
 **28/07/2023**
