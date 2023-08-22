@@ -120,11 +120,15 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 // Get date format.
                 $date_format = get_option('date_format');
 
+                // Flag.
+                $divi_dformat = null;
+                $ex_ddate = null;
+
                 // If Divi loaded, get Divi date format.
                 if (function_exists('et_divi_post_meta')) {
                     $divi_dformat = et_get_option( 'divi_date_format' );
                 }
-                
+
                 // If time format is empty, set a default value.
                 if (empty($time_format)) {
                     $time_format = update_option('time_format', 'H:i');
@@ -134,12 +138,12 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 if (empty($date_format)) {
                     $date_format = update_option('date_format', 'd/m/Y');
                 }
-                
-                // If divi date format is empty, set default value equal .
-                if (empty($divi_dformat)) {
-                    $divi_dformat = et_update_option( 'divi_date_format', $date_format); // TODO testar se funciona.
-                }
 
+                // If divi date format is empty, set default value equal .
+                if (function_exists('et_divi_post_meta') && empty($divi_dformat)) {
+                    $divi_dformat = et_update_option( 'divi_date_format', $date_format) ?? 'M j, Y';
+                }
+                
                 // Get Post time, and Post modified time.
                 $the_time = get_post_time( 'Y-m-d H:i', false, null, true );
                 $the_modified = get_post_modified_time( 'Y-m-d H:i', false, null, true );
@@ -151,25 +155,27 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 // For length comparations. Ex: $param = 21/08/2023, $date_format = d/m/Y, strlen will be different.
                 $ex_time = date($time_format);
                 $ex_date = date($date_format);
-                $ex_ddate = date($divi_dformat);
 
+                if (function_exists('et_divi_post_meta')) {
+                    $ex_ddate = date($divi_dformat);
+                }
+                
                 if ( ! empty($param)) {
-                    if (strlen($param) === 10 && preg_match('/^\d+$/', $param) ) {// Only numbers in $param, $param = Unix
+                    if (strlen($param) === 10 && preg_match('/^\d+$/', $param)) {// Only numbers in $param, $param = Unix
                         // Time convert to Unix timestamp for get_the_time('U').
                         $the_time = get_post_time( 'U' );
                         $the_modified = get_post_modified_time( 'U' );
                     
                         return $the_modified <= $the_time ? $the_time : $the_modified;
                     }
-                    if (strpos($param, ':') !== false || strlen($param) === strlen($ex_time)) { // Verification of parameter in the get_the_time() call, equals than time_format:
+                    if (strpos($param, ':') !== false && strlen($param) === strlen($ex_time)) {// Verification of parameter in the get_the_time() call, equals than time_format:
                         return $the_modified <= $the_time ? date_i18n($time_format, $the_published->getTimestamp()) : date_i18n($time_format, $the_updated->getTimestamp());
                     }
-                    if (strlen($param) >= strlen($ex_date) || strlen($param) >= strlen($ex_ddate)) { // Verification of parameter in the get_the_time() call, equals than date_format or divi_date_format:
-                        if (strlen($param) >= strlen($ex_ddate)) {
-                            return $the_modified <= $the_time ? date_i18n($divi_dformat, $the_published->getTimestamp()) : date_i18n($divi_dformat, $the_updated->getTimestamp());
-                        } else {
-                            return $the_modified <= $the_time ? date_i18n($date_format, $the_published->getTimestamp()) : date_i18n($date_format, $the_updated->getTimestamp());
-                        }
+                    if (function_exists('et_divi_post_meta') && strlen($param) >= strlen($ex_ddate)) {// Verification of parameter in the get_the_time() call, equals than date_format or divi_date_format:
+                        return $the_modified <= $the_time ? date_i18n($divi_dformat, $the_published->getTimestamp()) : date_i18n($divi_dformat, $the_updated->getTimestamp());
+                    } 
+                    if (strlen($param) >= strlen($ex_date)) {
+                        return $the_modified <= $the_time ? date_i18n($date_format, $the_published->getTimestamp()) : date_i18n($date_format, $the_updated->getTimestamp());
                     }
                 }
             }
