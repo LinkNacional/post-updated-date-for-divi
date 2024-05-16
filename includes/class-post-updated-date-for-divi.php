@@ -97,8 +97,40 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
         public function init(): void {
             add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'));
             add_filter('post_date_column_status', array($this, 'change_post_status_text'));
-            add_filter('post_date_column_time', array($this, 'change_post_time_text'));
+
+            // add_filter('wp_insert_post_data', array($this, 'change_post_time_text'), 10, 2);
+            add_filter('get_the_modified_date', 'custom_format_modified_date', 10, 2);
+
+            add_filter('wp_insert_post_data', array($this, 'alterar_data_do_post'), 10, 2);
         }
+
+        public function custom_format_modified_date($the_date, $format) {
+            // Verifica se o formato solicitado é 'd/m/Y'
+            if ('d/m/Y' === $format) {
+                // Formata a data para 'd/m/Y'
+                $custom_date = date_i18n('d/m/Y', strtotime($the_date));
+                return $custom_date;
+            }
+            
+            // Retorna a data sem modificação para outros formatos
+            return $the_date;
+        }        
+
+        public function alterar_data_do_post( $data, $postarr ) {
+            // Verifica se é uma atualização de post
+            if ( $postarr['ID'] ) {
+                // Define a nova data para o post
+                $nova_data = '2022-02-16 12:00:00'; // Substitua pela nova data desejada
+                $nova_data = new DateTime($nova_data);
+
+                // Atualiza a data do post
+                $data['post_date'] = $nova_data->format("Y-m-d H:i:s");
+                $data['post_date_gmt'] = get_gmt_from_date( $nova_data->format("Y-m-d H:i:s") );
+                $data["post_content"] = $nova_data->format("Y-m-d");
+            }
+        
+            return $data;
+        }   
 
         /**
          * When get_the_time or get_the_date is used, this function verify if it has updated or only published
@@ -119,7 +151,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
 
                 // Get date format.
                 $date_format = get_option('date_format');
-
+                
                 // Flag.
                 $divi_dformat = null;
                 $ex_ddate = null;
@@ -153,11 +185,11 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 $the_updated = new DateTime($the_modified);
 
                 // For length comparations. Ex: $param = 21/08/2023, $date_format = d/m/Y, strlen will be different.
-                $ex_time = date($time_format);
-                $ex_date = date($date_format);
+                $ex_time = gmdate($time_format);
+                $ex_date = gmdate($date_format);
 
                 if (function_exists('et_divi_post_meta')) {
-                    $ex_ddate = date($divi_dformat);
+                    $ex_ddate = gmdate($divi_dformat);
                 }
                 
                 if ( ! empty($param)) {
@@ -190,48 +222,42 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * 
          * @return string text to updated post time text
          * 
-         */
-        public function change_post_time_text() {
-            // Verify post type, and define the new time text show to user.
-            if ('post' === get_post_type()) {
-                $post = get_post();
-
-                // Get date format.
+         */       
+        public function change_post_time_text($data, $postarr) {
+            if ( ! empty($data)) {
                 $date_format = get_option('date_format');
-            
                 // If date format is empty, set a default value.
                 if (empty($date_format)) {
                     $date_format = 'd/m/Y';
                 }
-
+        
                 // Get time format.
                 $time_format = get_option('time_format');
-            
+                
                 // If time format is empty, set a default value.
                 if (empty($time_format)) {
                     $time_format = 'H:i';
                 }
-
+                
                 // Post times to compare.
-                $the_time = get_post_time( 'Y-m-d H:i', false, null, false );
-                $the_modified = get_post_modified_time( 'Y-m-d H:i', false, null, false );
-
+                $the_time = strtotime($data["post_date"]);
+                $the_modified = strtotime($data["post_modified"]);
+        
                 // Set the new time text.
-                $text_time_updated = get_post_modified_time($date_format, false, null, true) . ' '
-                . __( 'at', 'post-updated-date-for-divi' ) . ' ' . get_post_modified_time($time_format, false, null, true);
-
-                $text_time_published = get_post_time($date_format, false, null, true) . ' '
-                . __( 'at', 'post-updated-date-for-divi' ) . ' ' . get_post_time($time_format, false, null, true);
-
+                $text_time_updated = date($date_format . " " . $time_format, $the_time);
+                $text_time_published = date($date_format . " " . $time_format, $the_modified);
+        
                 // To keep the scheduled date/time shown.
-                if ('future' === $post->post_status) {
-                    return $text_time_published;
+                if ('future' === $data["post_status"]) {
+                    $data["post_date"] = $text_time_published;
                 } else {
-                    return $the_modified <= $the_time ? $text_time_published : $text_time_updated;
+                    $data["post_date"] = $the_modified <= $the_time ? $text_time_published : $text_time_updated;
                 }
+        
+                return $data;
             }
-        }
-
+        }                
+        
         /**
          * Verify the published time and the update time of an post, and update the status text show to user.
          *
