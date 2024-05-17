@@ -1,3 +1,8 @@
+### v1.0.3 - 17/05/2024
+
+- Fixed where publishing date was still shown in blog posts.
+- Compatibility with other themes
+
 ### v1.0.2 - 22/08/23
 
 - Bug correction.
