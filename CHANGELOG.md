@@ -1,17 +1,14 @@
-### v1.0.3 - 17/05/2024
+# 1.0.3 - 17/05/2024
+* Corrigido onde a data de publicação ainda era exibida nas postagens do blog;
+* Compatibilidade com outros temas.
 
-- Fixed where publishing date was still shown in blog posts.
-- Compatibility with other themes
+# 1.0.2 - 22/08/2023
+* Correção de bug;
+* Corrigido bug nos cabeçalhos de posts personalizados construídos com Divi, onde a data era exibida como Unix Timestamp.
 
-### v1.0.2 - 22/08/23
+# 1.0.1 - 28/07/2023
+* Correção de bug;
+* Plugin agora lida com postagens agendadas.
 
-- Bug correction.
-- Fixed bug in custom posts headers built with Divi, where the date was shown as Unix Timestamp.
-
-### v1.0.1 - 28/07/23
-
-- Bug correction.
-- Plugin now handles scheduled posts.
-
-### v1.0.0
-- Plugin launch.
+# 1.0.0
+* Lançamento do plugin.

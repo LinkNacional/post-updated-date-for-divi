@@ -1,10 +1,10 @@
 === Post Updated Date for Divi ===
 Contributors: linknacional
 Donate link: https://www.linknacional.com/wordpress/plugins/
-Tags: posts, updated, post, modified, date, divi
+Tags: posts, updated, post, modified, date
 Requires at least: 5.5
-Tested up to: 6.3
-Stable tag: 1.0.2
+Tested up to: 6.5
+Stable tag: 1.0.3
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -59,6 +59,11 @@ The Post Updated Date for Divi plugin is now live and working.
 1. Nothing;
 
 == Changelog ==
+
+= 1.0.3 =
+**17/05/2024**
+* Fixed where publishing date was still shown in blog posts.
+* Compatibility with other themes
 
 = 1.0.2 =
 **22/08/2023**
