@@ -1,3 +1,6 @@
+# 1.0.4 - 10/07/2024
+* Correção de bugs;
+
 # 1.0.3 - 17/05/2024
 * Corrigido onde a data de publicação ainda era exibida nas postagens do blog;
 * Compatibilidade com outros temas.
