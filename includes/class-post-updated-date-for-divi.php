@@ -96,8 +96,8 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          */
         public function init(): void {
             add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'), 10, 1);
-            add_filter('post_date_column_status', array($this, 'change_post_status_text'));
-
+            add_filter('post_date_column_status', array($this, 'change_post_status_text'),10,4);
+            add_filter('post_date_column_time', array($this, 'change_post_date_text'),10,2);
             add_filter('wp_insert_post_data', array($this, 'change_post_time_text'), 10, 2);
         }                  
 
@@ -219,14 +219,16 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * @return string text to updated status text
          * 
          */
-        public function change_post_status_text() {
+        public function change_post_status_text($status, $post,$collum_name,$mode) {
+
             // Verify post type, and define the new status text show to user.
-            if ('post' === get_post_type()) {
-                $post = get_post();
+            if ($post) {
 
                 // Post times to compare.
-                $the_time = get_post_time( 'Y-m-d H:i', false, null, false );
-                $the_modified = get_post_modified_time( 'Y-m-d H:i', false, null, false );
+                $the_time = new DateTime( $post->post_date );
+                $the_modified = new DateTime( $post->post_modified);
+                $the_time= $the_time->format("Y-m-d H:i");
+                $the_modified= $the_modified->format("Y/m/d H:i");
 
                 // Set the new status texts.
                 $text_updated = __( 'Updated:', 'post-updated-date-for-divi' );
@@ -234,15 +236,40 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 $text_published = __( 'Published:', 'post-updated-date-for-divi' );
 
                 $text_scheduled = __( 'Scheduled:', 'post-updated-date-for-divi' );
-
-                // To keep the scheduled status text shown.
+                // // To keep the scheduled status text shown.
                 if ('future' === $post->post_status) {
                     return $text_scheduled;
                 } else {
-                    return $the_modified <= $the_time ? $text_published : $text_updated;
+                    return $the_modified <= $the_time ? $text_published  : $text_updated;
                 }
             }
         }       
+
+        public function change_post_date_text($date, $post) {
+            if ($post) {
+                $format = get_option("date_format");
+        
+                $post_date = new DateTime($post->post_date);
+                $post_modified = new DateTime($post->post_modified);
+        
+                if ($format) {
+                    $formatted_post_date = $post_date->format($format);
+                    $formatted_post_modified = $post_modified->format($format);
+                } else {
+                    $formatted_post_date = $post_date->format("Y-m-d H:i");
+                    $formatted_post_modified = $post_modified->format("Y-m-d H:i");
+                }
+        
+                if ('future' === $post->post_status) {
+                    return $formatted_post_date;
+                } else {
+                    return $formatted_post_modified <= $formatted_post_date ? $formatted_post_date : $formatted_post_modified;
+                }
+            }
+        
+            // Se o post não existir, retorna a data original
+            return $date;
+        }
 
         /**
          * Run the loader to execute all of the hooks with WordPress.
