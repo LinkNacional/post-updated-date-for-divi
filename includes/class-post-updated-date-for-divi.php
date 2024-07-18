@@ -96,8 +96,8 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          */
         public function init(): void {
             add_filter( 'get_the_time', array($this, 'et_last_modified_date_blog'), 10, 1);
-            add_filter('post_date_column_status', array($this, 'change_post_status_text'),10,4);
-            add_filter('post_date_column_time', array($this, 'change_post_date_text'),10,2);
+            add_filter('post_date_column_status', array($this, 'change_post_status_text'), 10, 4);
+            add_filter('post_date_column_time', array($this, 'change_post_date_text'), 10, 2);
             add_filter('wp_insert_post_data', array($this, 'change_post_time_text'), 10, 2);
         }                  
 
@@ -219,16 +219,14 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * @return string text to updated status text
          * 
          */
-        public function change_post_status_text($status, $post,$collum_name,$mode) {
-
+        public function change_post_status_text($status, $post, $column_name, $mode) {
             // Verify post type, and define the new status text show to user.
             if ($post) {
-
                 // Post times to compare.
                 $the_time = new DateTime( $post->post_date );
                 $the_modified = new DateTime( $post->post_modified);
-                $the_time= $the_time->format("Y-m-d H:i");
-                $the_modified= $the_modified->format("Y/m/d H:i");
+                $the_time = $the_time->format("Y-m-d H:i");
+                $the_modified = $the_modified->format("Y/m/d H:i");
 
                 // Set the new status texts.
                 $text_updated = __( 'Updated:', 'post-updated-date-for-divi' );
