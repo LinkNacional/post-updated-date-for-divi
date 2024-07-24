@@ -1,3 +1,6 @@
+# 1.0.5 - 18/07/2024
+* Fixed bug presented "Warning" and "Deprecated" notices
+
 # 1.0.4 - 18/07/2024
 * Fixed bug on update at date for translated posts.
 
