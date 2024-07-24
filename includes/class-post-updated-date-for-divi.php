@@ -193,21 +193,28 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * 
          */       
         public function change_post_time_text($data, $postarr) {
-            if (empty($postarr)) {
+            // Verifique se $postarr é um array e não está vazio
+            if ( ! is_array($postarr) || empty($postarr)) {
                 return $data;
             }
-        
-            $the_time = new DateTime($postarr["post_date"]);
-            $the_modified = new DateTime($postarr["post_modified"]);
-        
+            
+            // Verifique se as chaves 'post_date' e 'post_modified' existem no array antes de criar o DateTime
+            $post_date = isset($postarr["post_date"]) ? $postarr["post_date"] : '';
+            $post_modified = isset($postarr["post_modified"]) ? $postarr["post_modified"] : '';
+            
+            // Verifique se os valores não são vazios antes de criar o DateTime
+            $the_time = ! empty($post_date) ? new DateTime($post_date) : new DateTime();
+            $the_modified = ! empty($post_modified) ? new DateTime($post_modified) : new DateTime();
+            
+            // Formatar as datas
             $text_time_published = $the_time->format("Y-m-d H:i:s");
             $text_time_updated = $the_modified->format("Y-m-d H:i:s");
-        
-            // Update post date based on post status.
+            
+            // Atualizar a data do post com base no status do post
             $data["post_date"] = ('future' === $data["post_status"]) ? $text_time_published : ($the_modified <= $the_time ? $text_time_published : $text_time_updated);
-        
+            
             return $data;
-        }           
+        }              
         
         /**
          * Verify the published time and the update time of an post, and update the status text show to user.
