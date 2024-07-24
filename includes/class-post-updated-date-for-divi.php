@@ -199,8 +199,8 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
             }
             
             // Verifique se as chaves 'post_date' e 'post_modified' existem no array antes de criar o DateTime
-            $post_date = isset($postarr["post_date"]) ? $postarr["post_date"] : '';
-            $post_modified = isset($postarr["post_modified"]) ? $postarr["post_modified"] : '';
+            $post_date = isset($data["post_date"]) ? $data["post_date"] : '';
+            $post_modified = isset($data["post_modified"]) ? $data["post_modified"] : '';
             
             // Verifique se os valores não são vazios antes de criar o DateTime
             $the_time = ! empty($post_date) ? new DateTime($post_date) : new DateTime();
