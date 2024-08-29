@@ -99,7 +99,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
             add_filter('post_date_column_status', array($this, 'change_post_status_text'), 10, 4);
             add_filter('post_date_column_time', array($this, 'change_post_date_text'), 10, 2);
             add_filter('wp_insert_post_data', array($this, 'change_post_time_text'), 10, 2);
-        }                  
+        }
 
         /**
          * When get_the_time or get_the_date is used, this function verify if it has updated or only published
@@ -108,9 +108,9 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * @see         https://www.linknacional.com/
          * @since       1.0.0
          * @version     1.0.2
-         * 
+         *
          * @return int date
-         * 
+         *
          */
         public function et_last_modified_date_blog($param) {
             // Verify post type.
@@ -120,7 +120,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
 
                 // Get date format.
                 $date_format = get_option('date_format');
-                
+
                 // Flag.
                 $divi_dformat = null;
                 $ex_ddate = null;
@@ -160,13 +160,13 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                 if (function_exists('et_divi_post_meta')) {
                     $ex_ddate = gmdate($divi_dformat);
                 }
-                
+
                 if ( ! empty($param)) {
                     if (strlen($param) === 10 && preg_match('/^\d+$/', $param)) {// Only numbers in $param, $param = Unix
                         // Time convert to Unix timestamp for get_the_time('U').
                         $the_time = get_post_time( 'U' );
                         $the_modified = get_post_modified_time( 'U' );
-                    
+
                         return $the_modified <= $the_time ? $the_time : $the_modified;
                     }
                     if (strpos($param, ':') !== false && strlen($param) === strlen($ex_time)) {// Verification of parameter in the get_the_time() call, equals than time_format:
@@ -174,7 +174,7 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                     }
                     if (function_exists('et_divi_post_meta') && strlen($param) >= strlen($ex_ddate)) {// Verification of parameter in the get_the_time() call, equals than date_format or divi_date_format:
                         return $the_modified <= $the_time ? date_i18n($divi_dformat, $the_published->getTimestamp()) : date_i18n($divi_dformat, $the_updated->getTimestamp());
-                    } 
+                    }
                     if (strlen($param) >= strlen($ex_date)) {
                         return $the_modified <= $the_time ? date_i18n($date_format, $the_published->getTimestamp()) : date_i18n($date_format, $the_updated->getTimestamp());
                     }
@@ -188,43 +188,43 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
          * @see         https://www.linknacional.com/
          * @since       1.0.0
          * @version     1.0.2
-         * 
+         *
          * @return string text to updated post time text
-         * 
-         */       
+         *
+         */
         public function change_post_time_text($data, $postarr) {
             // Verifique se $postarr é um array e não está vazio
             if ( ! is_array($postarr) || empty($postarr)) {
                 return $data;
             }
-            
+
             // Verifique se as chaves 'post_date' e 'post_modified' existem no array antes de criar o DateTime
             $post_date = isset($data["post_date"]) ? $data["post_date"] : '';
             $post_modified = isset($data["post_modified"]) ? $data["post_modified"] : '';
-            
+
             // Verifique se os valores não são vazios antes de criar o DateTime
             $the_time = ! empty($post_date) ? new DateTime($post_date) : new DateTime();
             $the_modified = ! empty($post_modified) ? new DateTime($post_modified) : new DateTime();
-            
+
             // Formatar as datas
             $text_time_published = $the_time->format("Y-m-d H:i:s");
             $text_time_updated = $the_modified->format("Y-m-d H:i:s");
-            
+
             // Atualizar a data do post com base no status do post
             $data["post_date"] = ('future' === $data["post_status"]) ? $text_time_published : ($the_modified <= $the_time ? $text_time_published : $text_time_updated);
-            
+
             return $data;
-        }              
-        
+        }
+
         /**
          * Verify the published time and the update time of an post, and update the status text show to user.
          *
          * @see         https://www.linknacional.com/
          * @since       1.0.0
          * @version     1.0.2
-         * 
+         *
          * @return string text to updated status text
-         * 
+         *
          */
         public function change_post_status_text($status, $post, $column_name, $mode) {
             // Verify post type, and define the new status text show to user.
@@ -248,15 +248,15 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                     return $the_modified <= $the_time ? $text_published  : $text_updated;
                 }
             }
-        }       
+        }
 
         public function change_post_date_text($date, $post) {
             if ($post) {
                 $format = get_option("date_format");
-        
+
                 $post_date = new DateTime($post->post_date);
                 $post_modified = new DateTime($post->post_modified);
-        
+
                 if ($format) {
                     $formatted_post_date = $post_date->format($format);
                     $formatted_post_modified = $post_modified->format($format);
@@ -264,14 +264,14 @@ if ( ! class_exists('Lkn_Post_Updated_Date_For_Divi') ) {
                     $formatted_post_date = $post_date->format("Y-m-d H:i");
                     $formatted_post_modified = $post_modified->format("Y-m-d H:i");
                 }
-        
+
                 if ('future' === $post->post_status) {
                     return $formatted_post_date;
                 } else {
                     return $formatted_post_modified <= $formatted_post_date ? $formatted_post_date : $formatted_post_modified;
                 }
             }
-        
+
             // Se o post não existir, retorna a data original
             return $date;
         }
