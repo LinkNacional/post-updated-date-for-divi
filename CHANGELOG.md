@@ -1,5 +1,8 @@
+# 1.0.5 - 29/08/2024
+* Corrigido o bug que apresentava avisos de "Warning" e "Deprecated"
+
 # 1.0.4 - 18/07/2024
-* Fixed bug on update at date for translated posts.
+* Corrigido o bug na atualização da data para postagens traduzidas.
 
 # 1.0.3 - 17/05/2024
 * Corrigido onde a data de publicação ainda era exibida nas postagens do blog;

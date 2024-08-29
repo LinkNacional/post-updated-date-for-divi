@@ -4,7 +4,7 @@ Donate link: https://www.linknacional.com/wordpress/plugins/
 Tags: posts, updated, post, modified, date
 Requires at least: 5.5
 Tested up to: 6.6
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 Requires PHP: 7.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -59,6 +59,10 @@ The Post Updated Date for Divi plugin is now live and working.
 1. Post with updated at date.
 
 == Changelog ==
+= 1.0.5 =
+**29/08/2024**
+* Fixed bug presented "Warning" and "Deprecated" notices
+
 = 1.0.4 =
 **18/07/2024**
 * Fixed bug on update at date for translated posts.
